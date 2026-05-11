@@ -464,11 +464,11 @@ function answer(choice) {
   fb.className = 'feedback show ' + (correct ? 'fb-ok' : 'fb-ko');
   document.getElementById('fb-icon').textContent = correct ? '✅' : '❌';
   document.getElementById('fb-verdict').textContent = correct
-    ? '+1 point — Bonne réponse !'
-    : '0 point — Mauvaise réponse';
+    ? '+1 point - Bonne réponse !'
+    : '0 point - Mauvaise réponse';
   document.getElementById('fb-correct-ans').innerHTML = correct
     ? `Ta réponse est correcte.`
-    : `Bonne réponse : <span class="ok-ans">${LETTERS[parseInt(q.a)]} — ${q.o[parseInt(q.a)]}</span>`;
+    : `Bonne réponse : <span class="ok-ans">${LETTERS[parseInt(q.a)]} - ${q.o[parseInt(q.a)]}</span>`;
   document.getElementById('fb-expl').textContent = q.e;
 
   // Next button
