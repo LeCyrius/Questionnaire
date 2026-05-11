@@ -186,7 +186,7 @@ main{max-width:820px;margin:0 auto;padding:32px 20px 80px;}
 
 <header>
   <div class="hd">
-    <div class="hd-title">QCM <span>Microbiologie</span> - Terminale STL</div>
+    <div class="hd-title">QCM <span>Microbiologie</span> · Terminale STL</div>
     <div class="hd-spacer"></div>
     <div class="score-bar" id="hd-score" style="display:none">
       <div class="score-pill ok">✔ <span id="hd-ok">0</span></div>
@@ -221,20 +221,20 @@ main{max-width:820px;margin:0 auto;padding:32px 20px 80px;}
       <div class="status-card ok"><div class="val" id="sc-ok">0</div><div class="lbl">✔ Bonnes</div></div>
       <div class="status-card ko"><div class="val" id="sc-ko">0</div><div class="lbl">✘ Mauvaises</div></div>
       <div class="status-card tot"><div class="val" id="sc-tot">0/100</div><div class="lbl">Progression</div></div>
-      <div class="status-card pct"><div class="val" id="sc-pct">—</div><div class="lbl">Score en cours</div></div>
+      <div class="status-card pct"><div class="val" id="sc-pct">-</div><div class="lbl">Score en cours</div></div>
     </div>
 
     <div class="q-wrapper">
       <div class="q-counter">
         <span id="q-n-lbl">Question 1 / 100</span>
-        <span class="theme-tag" id="q-theme-tag">—</span>
+        <span class="theme-tag" id="q-theme-tag">-</span>
         <div class="q-progress-mini"><div class="q-progress-mini-fill" id="q-mini-prog"></div></div>
       </div>
 
       <div class="qcard" id="qcard">
         <div class="q-body">
           <span class="q-number" id="q-number">Q1</span>
-          <p class="q-text" id="q-text">—</p>
+          <p class="q-text" id="q-text">-</p>
         </div>
         <div class="opts" id="opts-container"></div>
         <div class="feedback" id="feedback">
@@ -260,7 +260,7 @@ main{max-width:820px;margin:0 auto;padding:32px 20px 80px;}
   <div id="results-screen" class="hidden results-screen">
     <div class="results-hero">
       <span class="res-emoji" id="res-emoji">🏆</span>
-      <div class="res-note" id="res-note">—</div>
+      <div class="res-note" id="res-note">-</div>
       <div class="res-note-lbl">Note sur 20</div>
       <div class="res-mention" id="res-mention"></div>
     </div>
@@ -497,7 +497,7 @@ function updateScoreUI() {
   document.getElementById('sc-ok').textContent = ok;
   document.getElementById('sc-ko').textContent = ko;
   document.getElementById('sc-tot').textContent = (ok+ko)+'/100';
-  document.getElementById('sc-pct').textContent = done > 0 ? Math.round(ok/done*100)+'%' : '—';
+  document.getElementById('sc-pct').textContent = done > 0 ? Math.round(ok/done*100)+'%' : '-';
   document.getElementById('hd-ok').textContent = ok;
   document.getElementById('hd-ko').textContent = ko;
   document.getElementById('hd-q').textContent = ok+ko;
@@ -551,12 +551,12 @@ function buildDetail(filter) {
     const row = document.createElement('div');
     row.className = 'det-row ' + (h.correct ? 'r-ok' : 'r-ko');
     const L = LETTERS;
-    const userAns = L[h.choice] + ' — ' + h.q.o[h.choice];
-    const goodAns = L[parseInt(h.q.a)] + ' — ' + h.q.o[parseInt(h.q.a)];
+    const userAns = L[h.choice] + ' - ' + h.q.o[h.choice];
+    const goodAns = L[parseInt(h.q.a)] + ' - ' + h.q.o[parseInt(h.q.a)];
     row.innerHTML = `
       <span class="det-icon">${h.correct ? '✅' : '❌'}</span>
       <div class="det-info">
-        <div class="det-qtext">Q${h.q.n} — ${h.q.q}</div>
+        <div class="det-qtext">Q${h.q.n} - ${h.q.q}</div>
         <div class="det-ans">
           ${h.correct
             ? `<span class="ok-ans">✔ ${userAns}</span>`
