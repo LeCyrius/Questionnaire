@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QCM Microbiologie - Terminale STL</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d1117;--bg2:#161b22;--panel:#1c2128;--panel2:#21262d;
+  --border:#30363d;--ink:#e6edf3;--ink2:#8b949e;--muted:#6e7681;
+  --green:#3fb950;--red:#f85149;--blue:#58a6ff;--orange:#d29922;
+  --green-bg:rgba(63,185,80,.12);--red-bg:rgba(248,81,73,.12);
+  --blue-bg:rgba(88,166,255,.1);
+  --sh:0 4px 20px rgba(0,0,0,.4);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--ink);font-family:'Space Grotesk',sans-serif;min-height:100vh;
+  background-image:radial-gradient(ellipse 80% 40% at 50% -10%,rgba(88,166,255,.06) 0%,transparent 60%);}
+
+/* ── HEADER ── */
+header{background:var(--bg2);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:200;}
+.hd{max-width:820px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:16px;}
+.hd-title{font-size:15px;font-weight:700;color:var(--ink);letter-spacing:-.01em;}
+.hd-title span{color:var(--blue);}
+.hd-spacer{flex:1;}
+.score-bar{display:flex;gap:8px;align-items:center;}
+.score-pill{display:flex;align-items:center;gap:5px;border-radius:20px;padding:4px 10px;font-size:12px;font-weight:600;border:1px solid;}
+.score-pill.ok{background:var(--green-bg);border-color:rgba(63,185,80,.3);color:var(--green);}
+.score-pill.ko{background:var(--red-bg);border-color:rgba(248,81,73,.3);color:var(--red);}
+.score-pill.num{background:var(--blue-bg);border-color:rgba(88,166,255,.2);color:var(--blue);}
+
+/* ── PROGRESS ── */
+.progress-wrap{height:3px;background:var(--border);}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--green));transition:width .5s cubic-bezier(.4,0,.2,1);width:0;}
+
+/* ── MAIN ── */
+main{max-width:820px;margin:0 auto;padding:32px 20px 80px;}
+
+/* ── GAME STATUS BAR ── */
+.status-bar{display:flex;gap:12px;margin-bottom:28px;flex-wrap:wrap;}
+.status-card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:12px 18px;flex:1;min-width:120px;text-align:center;}
+.status-card .val{font-size:28px;font-weight:700;line-height:1;margin-bottom:3px;}
+.status-card .lbl{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);}
+.status-card.ok .val{color:var(--green);}
+.status-card.ko .val{color:var(--red);}
+.status-card.tot .val{color:var(--blue);}
+.status-card.pct .val{color:var(--orange);}
+
+/* ── QUESTION AREA ── */
+.q-wrapper{position:relative;}
+
+/* Question counter */
+.q-counter{font-size:11px;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:10px;}
+.q-counter .theme-tag{background:var(--panel2);border:1px solid var(--border);border-radius:4px;padding:2px 8px;font-size:10px;color:var(--ink2);}
+.q-progress-mini{flex:1;height:2px;background:var(--border);border-radius:2px;overflow:hidden;}
+.q-progress-mini-fill{height:100%;background:var(--blue);transition:width .4s;}
+
+/* Question card */
+.qcard{background:var(--panel);border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:var(--sh);transition:border-color .3s;}
+.qcard.correct-card{border-color:var(--green);}
+.qcard.wrong-card{border-color:var(--red);}
+
+.q-body{padding:24px 24px 20px;}
+.q-number{display:inline-block;background:var(--blue);color:#fff;font-size:10px;font-weight:700;border-radius:5px;padding:2px 8px;margin-bottom:12px;letter-spacing:.05em;}
+.q-text{font-family:'Libre Baskerville',serif;font-size:17px;line-height:1.6;color:var(--ink);margin-bottom:0;}
+
+.opts{padding:0 24px 24px;display:flex;flex-direction:column;gap:8px;}
+.obtn{display:flex;align-items:center;gap:12px;background:var(--panel2);border:1.5px solid var(--border);
+  border-radius:10px;padding:11px 16px;cursor:pointer;text-align:left;font-family:'Space Grotesk',sans-serif;
+  font-size:14px;color:var(--ink2);transition:all .15s;width:100%;font-weight:400;position:relative;overflow:hidden;}
+.obtn::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .2s;}
+.obtn:hover:not(:disabled){border-color:var(--blue);color:var(--ink);}
+.obtn:hover:not(:disabled)::before{background:var(--blue-bg);opacity:1;}
+.oltr{width:26px;height:26px;border-radius:6px;background:rgba(255,255,255,.06);color:var(--muted);
+  font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  transition:all .15s;border:1px solid var(--border);position:relative;z-index:1;}
+.obtn:hover:not(:disabled) .oltr{background:var(--blue);color:#fff;border-color:var(--blue);}
+.obtn span.otxt{position:relative;z-index:1;}
+
+/* Answer states */
+.obtn.correct{border-color:var(--green);background:var(--green-bg);color:var(--ink);}
+.obtn.correct .oltr{background:var(--green);color:#fff;border-color:var(--green);}
+.obtn.wrong{border-color:var(--red);background:var(--red-bg);color:var(--ink);}
+.obtn.wrong .oltr{background:var(--red);color:#fff;border-color:var(--red);}
+.obtn.dimmed{opacity:.3;}
+.obtn:disabled{cursor:default;}
+
+/* FEEDBACK PANEL */
+.feedback{margin:0 24px 24px;border-radius:12px;padding:0;overflow:hidden;
+  max-height:0;transition:max-height .4s cubic-bezier(.4,0,.2,1),opacity .3s;opacity:0;}
+.feedback.show{max-height:200px;opacity:1;}
+.feedback-inner{padding:14px 16px;display:flex;gap:12px;align-items:flex-start;}
+.feedback.fb-ok{background:var(--green-bg);border:1px solid rgba(63,185,80,.3);}
+.feedback.fb-ko{background:var(--red-bg);border:1px solid rgba(248,81,73,.3);}
+.fb-icon{font-size:20px;flex-shrink:0;line-height:1;margin-top:1px;}
+.fb-content{}
+.fb-verdict{font-size:13px;font-weight:700;margin-bottom:4px;}
+.fb-ok .fb-verdict{color:var(--green);}
+.fb-ko .fb-verdict{color:var(--red);}
+.fb-correct-ans{font-size:12px;font-weight:600;color:var(--ink2);margin-bottom:6px;}
+.fb-correct-ans span{color:var(--ink);font-weight:700;}
+.fb-expl{font-family:'Libre Baskerville',serif;font-size:13px;font-style:italic;color:var(--ink2);line-height:1.5;}
+
+/* NEXT BUTTON */
+.next-wrap{padding:0 24px 24px;display:none;}
+.next-wrap.show{display:block;}
+.btn-next{width:100%;background:var(--blue);color:#fff;border:none;border-radius:10px;padding:13px;
+  font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;cursor:pointer;
+  letter-spacing:.04em;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.btn-next:hover{background:#79b8ff;transform:translateY(-1px);box-shadow:0 4px 16px rgba(88,166,255,.3);}
+
+/* ── RESULTS SCREEN ── */
+.results-screen{display:none;animation:fadeIn .5s ease;}
+.results-screen.show{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+
+.results-hero{background:var(--panel);border:1px solid var(--border);border-radius:20px;padding:40px;text-align:center;margin-bottom:24px;position:relative;overflow:hidden;}
+.results-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 60% at 50% -10%,rgba(88,166,255,.08) 0%,transparent 60%);pointer-events:none;}
+.res-emoji{font-size:52px;margin-bottom:12px;display:block;}
+.res-note{font-size:68px;font-weight:700;line-height:1;color:var(--blue);margin-bottom:4px;}
+.res-note-lbl{font-size:12px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:16px;}
+.res-mention{font-size:18px;font-weight:600;color:var(--ink);margin-bottom:0;}
+
+.res-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;}
+.res-cell{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center;}
+.res-cell .v{font-size:30px;font-weight:700;display:block;margin-bottom:2px;}
+.res-cell .l{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);}
+.res-cell.ok{border-color:rgba(63,185,80,.3);}.res-cell.ok .v{color:var(--green);}
+.res-cell.ko{border-color:rgba(248,81,73,.3);}.res-cell.ko .v{color:var(--red);}
+.res-cell.tot .v{color:var(--blue);}
+.res-cell.pct .v{color:var(--orange);}
+
+/* DETAIL TABLE */
+.detail-wrap{background:var(--panel);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:24px;}
+.detail-head{padding:14px 20px;border-bottom:1px solid var(--border);font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2);display:flex;align-items:center;justify-content:space-between;}
+.det-filter{display:flex;gap:6px;}
+.det-fbtn{background:none;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:3px 10px;font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;}
+.det-fbtn.active{background:var(--blue);color:#fff;border-color:var(--blue);}
+.detail-list{max-height:360px;overflow-y:auto;}
+.det-row{display:flex;align-items:flex-start;gap:10px;padding:10px 20px;border-bottom:1px solid var(--border);font-size:12px;}
+.det-row:last-child{border-bottom:none;}
+.det-row.r-ok{background:rgba(63,185,80,.04);}
+.det-row.r-ko{background:rgba(248,81,73,.04);}
+.det-icon{font-size:14px;flex-shrink:0;margin-top:1px;}
+.det-info{flex:1;}
+.det-qtext{color:var(--ink);font-size:12px;line-height:1.4;margin-bottom:3px;}
+.det-ans{font-size:11px;color:var(--muted);}
+.det-ans .ok-ans{color:var(--green);font-weight:600;}
+.det-ans .ko-ans{color:var(--red);font-weight:600;}
+.det-theme{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);flex-shrink:0;align-self:center;}
+
+.btn-restart{width:100%;background:var(--blue);color:#fff;border:none;border-radius:12px;padding:14px;font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all .15s;letter-spacing:.04em;}
+.btn-restart:hover{background:#79b8ff;transform:translateY(-2px);box-shadow:0 6px 24px rgba(88,166,255,.3);}
+
+/* ANIM */
+@keyframes popIn{from{opacity:0;transform:scale(.9);}to{opacity:1;transform:scale(1);}}
+@keyframes shake{0%,100%{transform:translateX(0);}20%{transform:translateX(-8px);}40%{transform:translateX(8px);}60%{transform:translateX(-5px);}80%{transform:translateX(5px);}}
+.shake{animation:shake .4s ease;}
+@keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.08);}}
+.pulse{animation:pulse .3s ease;}
+
+/* POINT TOAST */
+.toast{position:fixed;top:72px;right:20px;border-radius:10px;padding:10px 18px;font-size:14px;font-weight:700;z-index:999;pointer-events:none;animation:toastIn .3s cubic-bezier(.34,1.56,.64,1) forwards;}
+@keyframes toastIn{from{opacity:0;transform:translateY(-12px)translateX(20px);}to{opacity:1;transform:translateY(0)translateX(0);}}
+.toast.go-out{animation:toastOut .3s ease forwards;}
+@keyframes toastOut{to{opacity:0;transform:translateY(-8px);}}
+.toast.t-ok{background:var(--green);color:#fff;}
+.toast.t-ko{background:var(--red);color:#fff;}
+
+/* WELCOME */
+.welcome{background:var(--panel);border:1px solid var(--border);border-radius:20px;padding:40px;text-align:center;margin-bottom:28px;}
+.welcome h1{font-size:26px;font-weight:700;margin-bottom:8px;color:var(--ink);}
+.welcome h1 span{color:var(--blue);}
+.welcome p{color:var(--ink2);font-size:14px;line-height:1.6;margin-bottom:24px;}
+.welcome-grid{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:24px;}
+.wg-item{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:10px 16px;font-size:12px;color:var(--ink2);}
+.wg-item strong{display:block;font-size:18px;color:var(--ink);font-weight:700;}
+.btn-start{background:var(--blue);color:#fff;border:none;border-radius:12px;padding:14px 40px;font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;cursor:pointer;transition:all .15s;letter-spacing:.04em;}
+.btn-start:hover{background:#79b8ff;transform:translateY(-2px);box-shadow:0 6px 24px rgba(88,166,255,.3);}
+
+.hidden{display:none!important;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hd">
+    <div class="hd-title">QCM <span>Microbiologie</span> - Terminale STL</div>
+    <div class="hd-spacer"></div>
+    <div class="score-bar" id="hd-score" style="display:none">
+      <div class="score-pill ok">✔ <span id="hd-ok">0</span></div>
+      <div class="score-pill ko">✘ <span id="hd-ko">0</span></div>
+      <div class="score-pill num">Q<span id="hd-q">0</span>/100</div>
+    </div>
+  </div>
+  <div class="progress-wrap"><div class="progress-fill" id="progress"></div></div>
+</header>
+
+<main>
+
+  <!-- WELCOME -->
+  <div id="welcome-screen">
+    <div class="welcome">
+      <h1>QCM <span>Microbiologie</span></h1>
+      <p>Réponds à chaque question et découvre immédiatement si tu as bon.<br>La bonne réponse et une explication s'affichent après chaque choix.</p>
+      <div class="welcome-grid">
+        <div class="wg-item"><strong>100</strong>Questions</div>
+        <div class="wg-item"><strong>7</strong>Thèmes</div>
+        <div class="wg-item"><strong>+1 pt</strong>Bonne réponse</div>
+        <div class="wg-item"><strong>0 pt</strong>Mauvaise réponse</div>
+        <div class="wg-item"><strong>/20</strong>Note finale</div>
+      </div>
+      <button class="btn-start" onclick="startGame()">▶ Commencer le QCM</button>
+    </div>
+  </div>
+
+  <!-- GAME -->
+  <div id="game-screen" class="hidden">
+    <div class="status-bar">
+      <div class="status-card ok"><div class="val" id="sc-ok">0</div><div class="lbl">✔ Bonnes</div></div>
+      <div class="status-card ko"><div class="val" id="sc-ko">0</div><div class="lbl">✘ Mauvaises</div></div>
+      <div class="status-card tot"><div class="val" id="sc-tot">0/100</div><div class="lbl">Progression</div></div>
+      <div class="status-card pct"><div class="val" id="sc-pct">—</div><div class="lbl">Score en cours</div></div>
+    </div>
+
+    <div class="q-wrapper">
+      <div class="q-counter">
+        <span id="q-n-lbl">Question 1 / 100</span>
+        <span class="theme-tag" id="q-theme-tag">—</span>
+        <div class="q-progress-mini"><div class="q-progress-mini-fill" id="q-mini-prog"></div></div>
+      </div>
+
+      <div class="qcard" id="qcard">
+        <div class="q-body">
+          <span class="q-number" id="q-number">Q1</span>
+          <p class="q-text" id="q-text">—</p>
+        </div>
+        <div class="opts" id="opts-container"></div>
+        <div class="feedback" id="feedback">
+          <div class="feedback-inner">
+            <span class="fb-icon" id="fb-icon"></span>
+            <div class="fb-content">
+              <div class="fb-verdict" id="fb-verdict"></div>
+              <div class="fb-correct-ans" id="fb-correct-ans"></div>
+              <div class="fb-expl" id="fb-expl"></div>
+            </div>
+          </div>
+        </div>
+        <div class="next-wrap" id="next-wrap">
+          <button class="btn-next" id="btn-next" onclick="nextQuestion()">
+            <span id="btn-next-label">Question suivante →</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="results-screen" class="hidden results-screen">
+    <div class="results-hero">
+      <span class="res-emoji" id="res-emoji">🏆</span>
+      <div class="res-note" id="res-note">—</div>
+      <div class="res-note-lbl">Note sur 20</div>
+      <div class="res-mention" id="res-mention"></div>
+    </div>
+
+    <div class="res-grid">
+      <div class="res-cell ok"><span class="v" id="res-ok">0</span><span class="l">✔ Bonnes</span></div>
+      <div class="res-cell ko"><span class="v" id="res-ko">0</span><span class="l">✘ Mauvaises</span></div>
+      <div class="res-cell tot"><span class="v">100</span><span class="l">Questions</span></div>
+      <div class="res-cell pct"><span class="v" id="res-pct">0%</span><span class="l">Réussite</span></div>
+    </div>
+
+    <div class="detail-wrap">
+      <div class="detail-head">
+        <span>Détail des réponses</span>
+        <div class="det-filter">
+          <button class="det-fbtn active" onclick="filterDet('all',this)">Tout</button>
+          <button class="det-fbtn" onclick="filterDet('ok',this)">✔ Bonnes</button>
+          <button class="det-fbtn" onclick="filterDet('ko',this)">✘ Mauvaises</button>
+        </div>
+      </div>
+      <div class="detail-list" id="detail-list"></div>
+    </div>
+
+    <button class="btn-restart" onclick="restartGame()">🔄 Recommencer depuis le début</button>
+  </div>
+
+</main>
+
+<script>
+const Q=[
+  {n:1,t:"Bactéries",q:"Quelle est la taille approximative d'une bactérie typique ?",o:["0,01 à 0,1 µm", "1 à 10 µm", "50 à 100 µm", "0,5 à 1 mm"],a:1,e:"Les bactéries mesurent généralement entre 1 et 10 µm de longueur."},
+  {n:2,t:"Bactéries",q:"Quel composant structural est caractéristique de la paroi bactérienne, absent chez les eucaryotes ?",o:["Cellulose", "Chitine", "Peptidoglycane", "Glycogène"],a:2,e:"Le peptidoglycane (ou mureïne) est le composant unique de la paroi bactérienne."},
+  {n:3,t:"Bactéries",q:"La coloration de Gram différencie les bactéries selon :",o:["La présence de flagelles", "La composition de leur paroi cellulaire", "La taille de leur chromosome", "Leur température optimale"],a:1,e:"Les Gram+ conservent le cristal violet grâce à leur épaisse paroi de peptidoglycane ; les Gram– le perdent du fait de leur membrane externe lipidique."},
+  {n:4,t:"Bactéries",q:"Comment se reproduisent principalement les bactéries ?",o:["Par sporulation", "Par fission binaire (scissiparité)", "Par bourgeonnement", "Par conjugaison"],a:1,e:"La fission binaire est le mode de reproduction asexué dominant : une cellule se divise en deux cellules filles génétiquement identiques."},
+  {n:5,t:"Bactéries",q:"Quelle structure permet à certaines bactéries de résister aux conditions extrêmes ?",o:["Le plasmide", "La capsule polysaccharidique", "L'endospore", "Le flagelle"],a:2,e:"L'endospore (Bacillus, Clostridium) est une forme de dormance extrêmement résistante à la chaleur, l'UV et la dessiccation."},
+  {n:6,t:"Bactéries",q:"Quel milieu permet d'obtenir des colonies bactériennes isolées ?",o:["Bouillon nutritif", "Gélose en boîte de Pétri", "Eau peptonée", "Milieu liquide agité"],a:1,e:"La gélose solide en boîte de Pétri permet l'isolement de colonies individuelles par ensemencement en stries."},
+  {n:7,t:"Bactéries",q:"Une bactérie aérobie stricte :",o:["Vit sans oxygène", "Tolère l'O₂ mais préfère son absence", "Nécessite l'O₂ pour vivre", "Est tuée par des traces d'O₂"],a:2,e:"Les aérobies stricts utilisent l'O2 comme accepteur final d'électrons dans la chaîne respiratoire."},
+  {n:8,t:"Bactéries",q:"La capsule bactérienne joue principalement un rôle :",o:["De protection contre la phagocytose", "De locomotion", "De synthèse d'ATP", "D'échange génétique"],a:0,e:"La capsule polysaccharidique masque les antigènes de surface et protège la bactérie de la phagocytose."},
+  {n:9,t:"Bactéries",q:"Lequel de ces genres est une bactérie sporulante ?",o:["Escherichia", "Staphylococcus", "Bacillus", "Pseudomonas"],a:2,e:"Bacillus et Clostridium sont les deux principaux genres produisant des endospores résistantes."},
+  {n:10,t:"Bactéries",q:"Durant la phase de latence, les bactéries :",o:["Se multiplient exponentiellement", "S'adaptent au milieu sans se diviser activement", "Meurent massivement", "Sporulent pour résister"],a:1,e:"La phase de latence correspond à l'adaptation métabolique au nouveau milieu."},
+  {n:11,t:"Bactéries",q:"Qu'est-ce qu'un plasmide ?",o:["Un chromosome secondaire linéaire", "Un ADN circulaire extrachromosomique autonome", "Un ARNm de grande taille", "Une protéine de résistance"],a:1,e:"Un plasmide est un petit ADN double brin circulaire capable de réplication autonome."},
+  {n:12,t:"Bactéries",q:"Le temps de génération de E. coli en conditions optimales est d'environ :",o:["2 minutes", "20 minutes", "2 heures", "20 heures"],a:1,e:"E. coli double sa population toutes les ~20 minutes à 37 °C en milieu riche."},
+  {n:13,t:"Bactéries",q:"Qu'est-ce qui distingue structurellement les bactéries Gram– des Gram+ ?",o:["Absence totale de paroi", "Présence d'une membrane externe lipopolysaccharidique", "Présence d'endospores systématiques", "Présence d'un noyau membranaire"],a:1,e:"Les Gram– possèdent une membrane externe contenant du LPS (lipopolysaccharide) endotoxique."},
+  {n:14,t:"Bactéries",q:"Le milieu Chapman est utilisé pour isoler :",o:["Salmonella", "Staphylococcus aureus", "Escherichia coli", "Clostridium"],a:1,e:"Le milieu Chapman (mannitol-sel, 7,5 % NaCl) est sélectif pour Staphylococcus aureus."},
+  {n:15,t:"Bactéries",q:"Quelle est la fonction principale du flagelle bactérien ?",o:["Adhésion aux surfaces", "Locomotion dans le milieu", "Résistance aux antibiotiques", "Échange de matériel génétique"],a:1,e:"Le flagelle est un organite de mobilité permettant à la bactérie de se déplacer en milieu liquide."},
+  {n:16,t:"Bactéries",q:"La pasteurisation vise principalement à détruire :",o:["Toutes les spores bactériennes", "Les formes végétatives pathogènes", "Tous les virus", "Tous les prions"],a:1,e:"La pasteurisation détruit les formes végétatives des bactéries pathogènes sans éliminer les spores thermostables."},
+  {n:17,t:"Bactéries",q:"Quel antibiotique cible la synthèse du peptidoglycane ?",o:["Streptomycine", "Pénicilline", "Tétracycline", "Ciprofloxacine"],a:1,e:"La pénicilline inhibe la transpeptidase (PLP), enzyme indispensable à la réticulation du peptidoglycane."},
+  {n:18,t:"Bactéries",q:"La CMI (concentration minimale inhibitrice) correspond à :",o:["La dose létale pour 50 % des bactéries", "La plus petite concentration d'antibiotique inhibant toute croissance visible", "La concentration tuant 100 % des bactéries", "La dose maximale tolérée par l'hôte"],a:1,e:"La CMI est la concentration la plus faible d'antibiotique empêchant toute croissance bactérienne macroscopiquement visible."},
+  {n:19,t:"Bactéries",q:"Une bactérie anaérobie stricte :",o:["A besoin d'O₂ pour croître", "Tolère l'O₂ sans le consommer", "Est tuée en présence d'oxygène", "Préfère l'O₂ mais peut s'en passer"],a:2,e:"Les anaérobies stricts manquent de superoxyde dismutase et catalase : l'oxygène leur est létal."},
+  {n:20,t:"Bactéries",q:"Un agent bactéricide :",o:["Inhibe la croissance sans tuer", "Tue les bactéries", "Favorise la croissance", "Sélectionne les mutants"],a:1,e:"Un agent bactéricide tue les bactéries, contrairement à un agent bactériostatique qui inhibe leur multiplication."},
+  {n:21,t:"Bactéries",q:"Le dénombrement par UFC (unités formant colonie) compte :",o:["Toutes les bactéries mortes et vivantes", "Les cellules bactériennes viables et cultivables", "Tous les acides nucléiques bactériens", "Les spores uniquement"],a:1,e:"Chaque UFC correspond à une cellule (ou amas) bactérienne viable capable de former une colonie sur gélose."},
+  {n:22,t:"Bactéries",q:"Quel genre bactérien réalise la fermentation lactique ?",o:["Pseudomonas", "Lactobacillus", "Bacillus", "Vibrio"],a:1,e:"Lactobacillus est un fermentaire lactique essentiel en industrie agroalimentaire."},
+  {n:23,t:"Bactéries",q:"La transformation bactérienne correspond à :",o:["L'échange d'ADN via un bactériophage", "L'incorporation d'ADN nu extracellulaire par une bactérie compétente", "Le transfert par pili sexuel", "La fusion de deux cellules"],a:1,e:"La transformation est l'entrée d'ADN libre dans une bactérie compétente."},
+  {n:24,t:"Bactéries",q:"La température optimale des bactéries mésophiles se situe entre :",o:["0 et 5 °C", "20 et 40 °C", "55 et 65 °C", "80 °C et plus"],a:1,e:"Les mésophiles, dont la majorité des bactéries pathogènes humaines, croissent entre 20 et 40 °C."},
+  {n:25,t:"Bactéries",q:"Une bactérie auxotrophe ne peut pas :",o:["Synthétiser tous ses facteurs de croissance", "Résister à un antibiotique", "Produire des toxines", "Se déplacer dans un gradient chimique"],a:0,e:"Une bactérie auxotrophe a perdu la capacité de synthétiser au moins un facteur de croissance essentiel."},
+  {n:26,t:"Bactéries",q:"Le séquençage du gène ARNr 16S permet :",o:["De mesurer la virulence", "L'identification phylogénétique des bactéries", "De tester la sensibilité aux antibiotiques", "De dénombrer les bactéries"],a:1,e:"Le gène 16S ARNr permet l'identification et la classification phylogénétique bactériennes."},
+  {n:27,t:"Bactéries",q:"Lors d'un antibiogramme par diffusion, une large zone d'inhibition indique :",o:["Une résistance à l'antibiotique", "Une sensibilité à l'antibiotique", "Une tolérance partielle", "Une sporulation active"],a:1,e:"Plus la zone d'inhibition est grande, plus la bactérie est sensible à l'antibiotique."},
+  {n:28,t:"Bactéries",q:"Quel pigment caractérise Staphylococcus aureus sur gélose ?",o:["Chlorophylle", "Caroténoïde (staphyloxanthine)", "Phycocyanine", "Mélanine"],a:1,e:"La staphyloxanthine est un caroténoïde jaune-orangé conférant à S. aureus sa couleur caractéristique."},
+  {n:29,t:"Bactéries",q:"Quel est le rôle des pili de conjugaison (pili F) ?",o:["Locomotion dans le milieu", "Adhésion au substrat", "Transfert d'un plasmide entre deux bactéries", "Protection contre les bactériophages"],a:2,e:"Les pili F forment un pont cytoplasmique pour le transfert du plasmide F (conjugaison)."},
+  {n:30,t:"Bactéries",q:"Le milieu Hektoen est utilisé pour isoler :",o:["Staphylocoques", "Salmonella et Shigella", "Levures", "Mycobactéries"],a:1,e:"Le milieu Hektoen est un milieu sélectif et différentiel pour Salmonella et Shigella dans les coprocultures."},
+  {n:31,t:"Virus",q:"Un virus est dit acellulaire car :",o:["Il possède un noyau membranaire", "Il ne possède pas de structure cellulaire propre", "Il est plus grand qu'une cellule", "Il peut se multiplier dans le sol"],a:1,e:"Les virus n'ont ni membrane cellulaire propre, ni ribosomes, ni métabolisme autonome."},
+  {n:32,t:"Virus",q:"La capside virale est composée de :",o:["Lipides membranaires", "Protéines (capsomères)", "ADN double brin", "Polysaccharides"],a:1,e:"La capside est la coque protéique du virus, assemblée à partir de capsomères."},
+  {n:33,t:"Virus",q:"Quel type de génome peut être porté par un virus ?",o:["Uniquement ADN double brin", "Uniquement ARN simple brin positif", "ADN ou ARN, simple ou double brin", "Uniquement ARN double brin"],a:2,e:"Les virus présentent une diversité génomique remarquable : ADN ou ARN, simple ou double brin."},
+  {n:34,t:"Virus",q:"L'enveloppe lipidique de certains virus provient :",o:["De la capside virale", "De la membrane de la cellule hôte", "Du réticulum endoplasmique viral", "D'une synthèse de novo"],a:1,e:"L'enveloppe lipidique est dérivée des membranes de la cellule hôte lors du bourgeonnement viral."},
+  {n:35,t:"Virus",q:"Un bactériophage est un virus qui infecte :",o:["Des champignons", "Des bactéries", "Des cellules humaines", "Des archées uniquement"],a:1,e:"Les bactériophages (phages) sont des virus dont l'hôte est exclusivement une bactérie."},
+  {n:36,t:"Virus",q:"Lors du cycle lytique d'un phage, la cellule hôte :",o:["Survit et produit lentement des virus", "Est lysée et libère de nombreux phages fils", "S'intègre dans le génome viral", "Se transforme en prophage stable"],a:1,e:"Dans le cycle lytique, la bactérie est détruite par lyse à la fin du cycle, libérant des centaines de nouveaux phages."},
+  {n:37,t:"Virus",q:"Lors du cycle lysogénique, le génome viral :",o:["Se réplique indépendamment", "S'intègre dans le chromosome bactérien (prophage)", "Est détruit par les enzymes cellulaires", "Est exporté hors de la cellule"],a:1,e:"Dans le cycle lysogénique, l'ADN viral s'intègre dans le chromosome bactérien : c'est le prophage."},
+  {n:38,t:"Virus",q:"Quelle enzyme est caractéristique des rétrovirus ?",o:["ADN polymérase II", "Transcriptase inverse (reverse transcriptase)", "ARN polymérase III", "Restriction endonucléase"],a:1,e:"La transcriptase inverse convertit l'ARN génomique viral en ADN double brin intégrable dans le génome de l'hôte."},
+  {n:39,t:"Virus",q:"Le VIH appartient à la famille des :",o:["Picornaviridae", "Herpesviridae", "Retroviridae", "Adenoviridae"],a:2,e:"Le VIH est un lentivirus appartenant à la famille Retroviridae."},
+  {n:40,t:"Virus",q:"Quelle cellule est la cible principale du VIH ?",o:["Globule rouge", "Lymphocyte T CD4+", "Plaquette sanguine", "Neurone moteur"],a:1,e:"Le VIH infecte préférentiellement les lymphocytes T auxiliaires CD4+ grâce à sa glycoprotéine gp120."},
+  {n:41,t:"Virus",q:"La charge virale se mesure en :",o:["mg/L", "UFC/mL", "Copies d'ARN viral/mL", "µg/mL"],a:2,e:"La charge virale du VIH est exprimée en copies d'ARN viral par millilitre de plasma."},
+  {n:42,t:"Virus",q:"Quelle technique amplifie un génome viral pour le détecter ?",o:["Coloration de Gram", "PCR (réaction en chaîne par polymérase)", "Électrophorèse SDS-PAGE", "Test ELISA"],a:1,e:"La PCR amplifie exponentiellement une séquence cible du génome viral pour sa détection."},
+  {n:43,t:"Virus",q:"Un virus à +ssARN peut directement :",o:["Servir d'ARNm et être traduit par les ribosomes", "Être traduit après rétrotranscription", "S'intégrer directement dans le chromosome", "Activer uniquement l'immunité innée"],a:0,e:"L'ARN+ a la même polarité qu'un ARNm et peut être directement pris en charge par les ribosomes."},
+  {n:44,t:"Virus",q:"Les interférons sont :",o:["Des antibiotiques antiviraux chimiques", "Des glycoprotéines antivirales produites par les cellules infectées", "Des toxines bactériennes", "Des composants de la capside"],a:1,e:"Les interférons (alpha, bêta, gamma) sont des cytokines de l'immunité innée produites en réponse à l'infection virale."},
+  {n:45,t:"Virus",q:"Le virus influenza possède un génome :",o:["ADN circulaire bicaténaire", "ARN simple brin négatif, segmenté en 8 fragments", "ADN double brin linéaire", "ARN double brin non segmenté"],a:1,e:"Le génome segmenté en 8 fragments d'ARN- facilite le réassortiment entre souches, à l'origine de nouvelles pandémies."},
+  {n:46,t:"Virus",q:"La lyophilisation d'un vaccin viral vise à :",o:["Augmenter la virulence des antigènes", "Conserver les antigènes viraux pour le stockage", "Stériliser le vaccin par chaleur", "Concentrer les anticorps maternels"],a:1,e:"La lyophilisation élimine l'eau par sublimation pour conserver la stabilité des antigènes viraux."},
+  {n:47,t:"Virus",q:"Un virus nu est plus résistant aux désinfectants car :",o:["Il possède une épaisse paroi cellulaire", "Il n'a pas de membrane lipidique sensible aux détergents", "Il produit des enzymes de résistance", "Il a un génome plus grand"],a:1,e:"Les désinfectants ciblent les lipides membranaires ; les virus nus, dépourvus d'enveloppe, leur résistent davantage."},
+  {n:48,t:"Virus",q:"Le phage lambda est l'exemple classique de :",o:["Virus à ARN unicellulaire", "Phage exclusivement virulent", "Phage tempéré capable de lysogénie", "Virus infectant les cellules animales"],a:2,e:"Le phage lambda peut choisir entre cycle lytique et intégration comme prophage selon les conditions."},
+  {n:49,t:"Virus",q:"La neuraminidase (N) du virus influenza permet :",o:["L'attachement au récepteur en acide sialique", "La libération des virions en clivant l'acide sialique", "La fusion de l'enveloppe avec la membrane cellulaire", "La réplication de l'ARN viral"],a:1,e:"La neuraminidase clive l'acide sialique pour libérer les nouveaux virions de la surface cellulaire."},
+  {n:50,t:"Virus",q:"La séroconversion désigne :",o:["L'apparition des premiers symptômes cliniques", "L'apparition d'anticorps spécifiques détectables dans le sérum", "La disparition complète du virus", "La lyse de toutes les cellules infectées"],a:1,e:"La séroconversion marque le moment où des anticorps spécifiques deviennent détectables dans le sang."},
+  {n:51,t:"Champignons",q:"Les deux grands groupes morphologiques des champignons microscopiques sont :",o:["Bactéries et levures", "Levures et moisissures", "Virus et prions", "Algues et protistes"],a:1,e:"Les micromycètes comprennent les levures (unicellulaires) et les moisissures (filamenteuses)."},
+  {n:52,t:"Champignons",q:"La paroi des champignons est principalement constituée de :",o:["Cellulose", "Peptidoglycane", "Chitine", "Amidon"],a:2,e:"La paroi fongique est composée de chitine, contrairement aux végétaux (cellulose) ou bactéries (peptidoglycane)."},
+  {n:53,t:"Champignons",q:"Candida albicans est responsable de :",o:["Tuberculose", "Candidoses (buccales, génitales, systémiques)", "Paludisme", "Méningite bactérienne"],a:1,e:"C. albicans est un champignon commensal opportuniste causant des candidoses, surtout chez les immunodéprimés."},
+  {n:54,t:"Champignons",q:"Le mycélium est :",o:["L'ensemble des spores fongiques", "Le réseau de filaments (hyphes) formant le corps végétatif", "L'ensemble des cellules bourgeonneuses", "Une structure de reproduction sexuée"],a:1,e:"Le mycélium est le thalle des moisissures, formé d'un réseau de filaments (hyphes)."},
+  {n:55,t:"Champignons",q:"Saccharomyces cerevisiae est utilisée pour :",o:["Produire des antibiotiques", "La fermentation alcoolique (pain, bière, vin)", "Dégrader les hydrocarbures", "Synthétiser des pesticides"],a:1,e:"S. cerevisiae catalyse la fermentation alcoolique : glucose → éthanol + CO2."},
+  {n:56,t:"Champignons",q:"Les antifongiques azolés agissent en :",o:["Inhibant la synthèse du peptidoglycane", "Bloquant la synthèse de l'ergostérol membranaire", "Dégradant l'ADN fongique", "Inhibant les ribosomes 80S"],a:1,e:"Les azolés inhibent la lanostérol 14alpha-déméthylase, clé de la synthèse de l'ergostérol fongique."},
+  {n:57,t:"Champignons",q:"La sporulation des moisissures permet :",o:["La résistance aux antibiotiques", "La dissémination aérienne et la survie dans l'environnement", "La conjugaison avec d'autres champignons", "La production d'endotoxines"],a:1,e:"Les conidies et sporangiospores assurent la reproduction asexuée et la dispersion des moisissures."},
+  {n:58,t:"Champignons",q:"Aspergillus fumigatus peut provoquer chez un immunodéprimé :",o:["Une aspergillose pulmonaire invasive", "Une méningite bactérienne", "Une infection virale hépatique", "Une tuberculose"],a:0,e:"A. fumigatus est le principal agent d'aspergillose invasive, infection grave chez les immunodéprimés."},
+  {n:59,t:"Champignons",q:"La coloration au bleu de lactophénol coton (BLC) est utilisée pour :",o:["Colorer les bactéries Gram+", "Observer les structures fongiques au microscope", "Quantifier les levures en suspension", "Tester la sporulation bactérienne"],a:1,e:"Le BLC colore les parois chitineuses des champignons en bleu pour identification microscopique."},
+  {n:60,t:"Champignons",q:"Quel milieu est recommandé pour isoler les champignons ?",o:["Gélose Chapman", "Milieu de Sabouraud", "Bouillon nutritif", "Milieu Hektoen"],a:1,e:"Le milieu de Sabouraud (pH 5,6, glucose 4 %) est le milieu de référence pour l'isolement des champignons."},
+  {n:61,t:"Stérilisation",q:"La stérilisation par autoclave utilise :",o:["Des rayons UV", "La chaleur humide sous pression (vapeur saturée)", "De l'oxyde d'éthylène", "Une irradiation gamma"],a:1,e:"L'autoclave atteint 121 °C à 1 bar de surpression pendant 15-20 min, détruisant tous les micro-organismes y compris les spores."},
+  {n:62,t:"Stérilisation",q:"Quelle méthode est adaptée aux matériaux thermosensibles ?",o:["Autoclave à 121 °C", "Four Pasteur à 180 °C", "Oxyde d'éthylène (gaz)", "Flambage à l'alcool"],a:2,e:"L'oxyde d'éthylène stérilise à basse température (<60 °C) les matériaux thermosensibles."},
+  {n:63,t:"Stérilisation",q:"Le four Pasteur (chaleur sèche) stérilise à :",o:["121 °C pendant 15 min", "160–180 °C pendant 1–2 h", "60 °C pendant 30 min", "37 °C pendant 24 h"],a:1,e:"Le four Pasteur utilise la chaleur sèche à 160-180 °C pour stériliser le verre et les instruments métalliques."},
+  {n:64,t:"Stérilisation",q:"Un antiseptique s'utilise :",o:["Sur les surfaces inertes", "Sur les tissus vivants (peau, muqueuses)", "Pour stériliser les instruments chirurgicaux", "Pour désinfecter l'air ambiant"],a:1,e:"Les antiseptiques (alcool, bétadine) s'appliquent sur les tissus vivants pour réduire le nombre de micro-organismes."},
+  {n:65,t:"Stérilisation",q:"Un désinfectant s'utilise :",o:["Sur la peau saine", "Sur les plaies ouvertes", "Sur les surfaces inertes (matériels, sols, murs)", "Dans le sang"],a:2,e:"Les désinfectants s'appliquent sur les surfaces inertes ; leur usage sur les tissus vivants est proscrit."},
+  {n:66,t:"Stérilisation",q:"La filtration sur membrane (0,22 µm) stérilise en :",o:["Tuant les bactéries par chaleur", "Retenant physiquement bactéries et spores", "Détruisant l'ADN microbien", "Oxydant les micro-organismes"],a:1,e:"Un filtre de 0,22 µm retient par exclusion de taille toutes les bactéries et spores."},
+  {n:67,t:"Stérilisation",q:"Les rayons UV germicides (254 nm) agissent en :",o:["Déstructurant les membranes lipidiques", "Formant des dimères de thymine dans l'ADN", "Précipitant les protéines de surface", "Oxydant le peptidoglycane"],a:1,e:"Les UV induisent des dimères de cyclobutylpyrimidine dans l'ADN, bloquant la réplication."},
+  {n:68,t:"Stérilisation",q:"Le témoin biologique de l'autoclave utilise des spores de :",o:["Geobacillus stearothermophilus", "Clostridium botulinum", "Staphylococcus aureus", "Candida albicans"],a:0,e:"G. stearothermophilus est l'indicateur biologique de référence pour l'autoclave."},
+  {n:69,t:"Stérilisation",q:"L'alcool éthylique à 70 % est plus bactéricide que l'alcool pur car :",o:["Il est moins irritant pour la peau", "La présence d'eau favorise la dénaturation des protéines bactériennes", "Il pénètre mieux grâce aux spores", "Il est moins volatil"],a:1,e:"L'eau présente dans l'alcool à 70 % est indispensable à la dénaturation des protéines cytoplasmiques."},
+  {n:70,t:"Stérilisation",q:"Quel indicateur chimique vérifie le passage d'un cycle en autoclave ?",o:["Ruban adhésif avec indicateur de couleur thermosensible", "Test à l'alcool", "Indicateur colorimétrique pH", "Coloration de Gram"],a:0,e:"Le ruban thermosensible change de couleur après exposition aux conditions de stérilisation."},
+  {n:71,t:"Stérilisation",q:"La pasteurisation HTST correspond à :",o:["63 °C pendant 30 min", "72 °C pendant 15 secondes", "100 °C pendant 10 min", "121 °C pendant 15 min"],a:1,e:"La pasteurisation flash traite le lait à 72 °C pendant 15 s pour détruire les agents pathogènes."},
+  {n:72,t:"Stérilisation",q:"Le terme asepsie désigne :",o:["La destruction des micro-organismes déjà présents", "L'ensemble des mesures préventives évitant l'introduction de micro-organismes", "La résistance naturelle aux antibiotiques", "La sporulation bactérienne défensive"],a:1,e:"L'asepsie est une démarche préventive visant à ne jamais introduire de micro-organismes dans un milieu stérile."},
+  {n:73,t:"Immunologie",q:"Quelle cellule est la principale productrice d'anticorps ?",o:["Lymphocyte T cytotoxique", "Plasmocyte (lymphocyte B différencié)", "Macrophage activé", "Cellule NK"],a:1,e:"Les plasmocytes sont les lymphocytes B différenciés spécialisés dans la sécrétion massive d'immunoglobulines."},
+  {n:74,t:"Immunologie",q:"Un anticorps est une molécule de type :",o:["Lipoprotéine", "Glucide complexe", "Immunoglobuline (glycoprotéine)", "ARN de transfert"],a:2,e:"Les anticorps sont des glycoprotéines en forme de Y, composées de deux chaînes lourdes et deux chaînes légères."},
+  {n:75,t:"Immunologie",q:"La technique ELISA permet :",o:["De cultiver des bactéries en milieu sélectif", "De détecter et quantifier des antigènes ou des anticorps", "D'amplifier des séquences d'ADN", "De visualiser des chromosomes"],a:1,e:"L'ELISA exploite la spécificité antigène-anticorps et l'amplification enzymatique pour détecter des molécules cibles."},
+  {n:76,t:"Immunologie",q:"L'immunité innée est caractérisée par :",o:["Une réponse spécifique avec mémoire immunologique", "Une réponse immédiate, non spécifique, sans mémoire", "La production d'anticorps spécifiques", "La présentation antigénique par le CMH II uniquement"],a:1,e:"L'immunité innée est une réponse rapide, non spécifique et sans mémoire immunologique."},
+  {n:77,t:"Immunologie",q:"Un vaccin à germe vivant atténué induit une immunité :",o:["Faible et de très courte durée", "Forte et durable, similaire à l'infection naturelle", "Sans production d'anticorps", "Uniquement passive"],a:1,e:"Les vaccins vivants atténués induisent une immunité humorale et cellulaire forte et durable."},
+  {n:78,t:"Immunologie",q:"La phagocytose est principalement assurée par :",o:["Les lymphocytes B", "Les macrophages et les polynucléaires neutrophiles", "Les plasmocytes", "Les cellules dendritiques uniquement"],a:1,e:"Macrophages et neutrophiles sont les cellules phagocytaires majeures de l'immunité innée."},
+  {n:79,t:"Immunologie",q:"L'immunité passive naturelle du nouveau-né est conférée par :",o:["La vaccination à la naissance", "Les anticorps maternels (IgG via placenta, IgA via colostrum)", "Les lymphocytes T maternels", "Les interférons placentaires"],a:1,e:"Le nouveau-né reçoit des IgG maternelles par transfert placentaire et des IgA du colostrum."},
+  {n:80,t:"Immunologie",q:"La réaction d'agglutination est basée sur :",o:["L'amplification génique des antigènes", "La liaison antigène-anticorps formant des agrégats visibles", "La lyse cellulaire par le complément", "La révélation colorimétrique enzymatique"],a:1,e:"L'agglutination produit des agrégats macroscopiquement visibles lorsque des anticorps relient des particules antigéniques."},
+  {n:81,t:"Immunologie",q:"Le CMH de classe II est exprimé par :",o:["Toutes les cellules nucléées", "Les cellules présentatrices d'antigènes professionnelles", "Les globules rouges", "Les plaquettes sanguines"],a:1,e:"Le CMH II est exprimé par les CPA professionnelles pour présenter les peptides aux lymphocytes T CD4+."},
+  {n:82,t:"Immunologie",q:"L'opsonisation consiste en :",o:["La destruction directe d'un virus par les NK", "Le marquage d'un pathogène facilitant sa phagocytose", "La lyse osmotique des bactéries", "La sécrétion d'interleukines pro-inflammatoires"],a:1,e:"L'opsonisation par IgG ou C3b facilite la reconnaissance du pathogène par les phagocytes."},
+  {n:83,t:"Génétique",q:"La transduction bactérienne est un transfert de gènes via :",o:["Un plasmide nu", "Un bactériophage vecteur", "Le milieu extracellulaire directement", "Un pili de conjugaison"],a:1,e:"La transduction est le transfert de matériel génétique bactérien par l'intermédiaire d'un phage."},
+  {n:84,t:"Génétique",q:"Un transposon est :",o:["Un plasmide de résistance", "Un segment d'ADN mobile s'insérant dans différents sites génomiques", "Un ARN de régulation post-transcriptionnelle", "Un fragment de capside virale"],a:1,e:"Les transposons sont des éléments génétiques mobiles capables de se transposer dans le génome."},
+  {n:85,t:"Génétique",q:"La PCR permet d'amplifier :",o:["Des ARN messagers uniquement", "Une séquence d'ADN cible de façon exponentielle", "Des protéines recombinantes", "Des anticorps monoclonaux"],a:1,e:"La PCR amplifie exponentiellement une séquence d'ADN cible par cycles répétés."},
+  {n:86,t:"Génétique",q:"La résistance aux antibiotiques se propage par :",o:["Transport simple de protéines dans le milieu", "Le transfert horizontal de gènes (conjugaison, transformation, transduction)", "La division cellulaire verticale uniquement", "Le bourgeonnement viral"],a:1,e:"Le transfert horizontal permet la dissémination rapide de gènes de résistance entre bactéries."},
+  {n:87,t:"Génétique",q:"Le clonage moléculaire consiste à :",o:["Reproduire un organisme entier à l'identique", "Insérer un fragment d'ADN dans un vecteur et l'amplifier dans une cellule hôte", "Séquencer un génome complet", "Mutagéniser un gène par irradiation UV"],a:1,e:"Le clonage moléculaire insère un fragment d'ADN dans un vecteur introduit dans une cellule hôte pour l'amplifier."},
+  {n:88,t:"Génétique",q:"Les endonucléases de restriction coupent l'ADN :",o:["De manière aléatoire", "En des séquences spécifiques (palindromes)", "Uniquement en présence d'ATP", "Uniquement sur les ARN"],a:1,e:"Les enzymes de restriction reconnaissent des séquences palindromiques courtes et les coupent de façon spécifique."},
+  {n:89,t:"Génétique",q:"L'électrophorèse sur gel d'agarose sépare les fragments d'ADN selon :",o:["Leur composition en nucléotides", "Leur taille (les petits fragments migrent plus loin)", "Leur charge positive", "Leur structure tridimensionnelle"],a:1,e:"Dans le gel d'agarose, les petits fragments migrent plus vite et donc plus loin vers l'anode."},
+  {n:90,t:"Génétique",q:"Une mutation ponctuelle silencieuse :",o:["Change l'acide aminé codé", "Ne change pas l'acide aminé (dégénérescence du code génétique)", "Crée un codon stop prématuré", "Provoque un décalage du cadre de lecture"],a:1,e:"Une mutation silencieuse substitue une base mais code pour le même acide aminé."},
+  {n:91,t:"Génétique",q:"La technique Southern Blot permet de :",o:["Détecter des ARNm spécifiques", "Détecter des protéines spécifiques", "Détecter des séquences d'ADN spécifiques par hybridation", "Cultiver des bactéries en anaérobiose"],a:2,e:"Le Southern Blot hybride l'ADN sur membrane avec une sonde marquée pour détecter des séquences cibles."},
+  {n:92,t:"Génétique",q:"Un vecteur d'expression en biologie moléculaire est :",o:["Un organisme vecteur de maladie", "Un plasmide permettant l'expression d'un gène étranger dans une cellule hôte", "Un phage lytique de haute virulence", "Un transposon actif"],a:1,e:"Un vecteur d'expression contient un promoteur fort et un site de clonage pour exprimer une protéine recombinante."},
+  {n:93,t:"Techniques",q:"L'ensemencement par épuisement en stries vise à :",o:["Enrichir le milieu en bactéries cibles", "Obtenir des colonies isolées pour isoler une souche pure", "Tester la sensibilité aux antibiotiques", "Dénombrer les bactéries d'un échantillon"],a:1,e:"L'ensemencement en stries dilue progressivement l'inoculum pour obtenir des colonies individuelles."},
+  {n:94,t:"Techniques",q:"La microscopie à fond noir est adaptée à :",o:["L'observation des endospores colorées", "L'observation de bactéries vivantes non colorées et mobiles", "La réalisation d'une coloration de Gram", "L'identification des moisissures"],a:1,e:"La microscopie à fond noir permet de visualiser des bactéries translucides vivantes sans coloration."},
+  {n:95,t:"Techniques",q:"La méthode NPP (nombre le plus probable) est une méthode :",o:["De stérilisation par dilution", "D'identification biochimique des entérobactéries", "De dénombrement statistique par dilutions successives", "De séquençage du gène 16S"],a:2,e:"Le NPP utilise des séries de tubes à des dilutions successives pour estimer statistiquement la densité bactérienne."},
+  {n:96,t:"Techniques",q:"La galerie API 20E permet d'identifier :",o:["Des champignons filamenteux", "Des virus à ARN", "Des entérobactéries par tests biochimiques miniaturisés", "Des mycobactéries"],a:2,e:"L'API 20E teste 20 caractères biochimiques en miniaturisé pour identifier les entérobactéries."},
+  {n:97,t:"Techniques",q:"Pour observer un frottis bactérien au microscope optique, on utilise un objectif :",o:["×10 à sec", "×100 à immersion (huile)", "×40 à sec", "×4 panoramique"],a:1,e:"L'objectif x100 à immersion permet d'atteindre un grossissement total de x1000 pour visualiser les bactéries."},
+  {n:98,t:"Techniques",q:"La spectrométrie MALDI-TOF est utilisée pour :",o:["Séquencer le génome bactérien complet", "Identifier rapidement les micro-organismes par leur profil protéique", "Mesurer la virulence d'une souche", "Tester la sensibilité aux antifongiques"],a:1,e:"MALDI-TOF génère un spectre de masse comparé à une bibliothèque de référence pour une identification rapide."},
+  {n:99,t:"Techniques",q:"Lors du dénombrement par incorporation (coulée en masse), la gélose est :",o:["Coulée avant d'ajouter l'inoculum", "Mélangée à l'inoculum dans la boîte (gélose fondue à 45 °C)", "Coulée après incubation des boîtes", "Utilisée sans inoculum"],a:1,e:"La technique en masse mélange l'inoculum avec la gélose fondue tiède avant solidification."},
+  {n:100,t:"Techniques",q:"Le contrôle microbiologique des surfaces de laboratoire se réalise par :",o:["Antibiogramme direct de la surface", "Écouvillonnage suivi de culture sur milieu approprié", "Coloration de Gram de la surface", "Western Blot des protéines de surface"],a:1,e:"L'écouvillonnage suivi de culture permet de vérifier la propreté microbiologique des plans de travail."}
+];
+
+const LETTERS = ['A','B','C','D'];
+let idx = 0, ok = 0, ko = 0, history = [];
+
+function startGame() {
+  document.getElementById('welcome-screen').classList.add('hidden');
+  document.getElementById('game-screen').classList.remove('hidden');
+  document.getElementById('hd-score').style.display = 'flex';
+  idx = 0; ok = 0; ko = 0; history = [];
+  showQuestion();
+}
+
+function showQuestion() {
+  if (idx >= Q.length) { showResults(); return; }
+  const q = Q[idx];
+  const total = Q.length;
+
+  document.getElementById('q-n-lbl').textContent = `Question ${idx+1} / ${total}`;
+  document.getElementById('q-theme-tag').textContent = q.t;
+  document.getElementById('q-mini-prog').style.width = (idx/total*100)+'%';
+  document.getElementById('q-number').textContent = `Q${q.n}`;
+  document.getElementById('q-text').textContent = q.q;
+  document.getElementById('progress').style.width = (idx/total*100)+'%';
+  document.getElementById('hd-q').textContent = idx;
+
+  // Reset feedback
+  const fb = document.getElementById('feedback');
+  fb.className = 'feedback';
+  document.getElementById('next-wrap').className = 'next-wrap';
+  document.getElementById('qcard').className = 'qcard';
+
+  // Build options
+  const container = document.getElementById('opts-container');
+  container.innerHTML = '';
+  q.o.forEach((opt, j) => {
+    const btn = document.createElement('button');
+    btn.className = 'obtn';
+    btn.innerHTML = `<span class="oltr">${LETTERS[j]}</span><span class="otxt">${opt}</span>`;
+    btn.onclick = () => answer(j);
+    container.appendChild(btn);
+  });
+
+  // Next button label
+  document.getElementById('btn-next-label').textContent =
+    idx === Q.length - 1 ? 'Voir mes résultats 🏁' : 'Question suivante →';
+
+  updateScoreUI();
+}
+
+function answer(choice) {
+  const q = Q[idx];
+  const correct = choice === parseInt(q.a);
+  if (correct) ok++; else ko++;
+  history.push({ q, choice, correct });
+
+  // Style buttons
+  const btns = document.querySelectorAll('.obtn');
+  btns.forEach((b, j) => {
+    b.disabled = true;
+    if (j === parseInt(q.a)) b.classList.add('correct');
+    else if (j === choice && !correct) b.classList.add('wrong');
+    else b.classList.add('dimmed');
+  });
+
+  // Card border
+  document.getElementById('qcard').classList.add(correct ? 'correct-card' : 'wrong-card');
+
+  // Feedback panel
+  const fb = document.getElementById('feedback');
+  fb.className = 'feedback show ' + (correct ? 'fb-ok' : 'fb-ko');
+  document.getElementById('fb-icon').textContent = correct ? '✅' : '❌';
+  document.getElementById('fb-verdict').textContent = correct
+    ? '+1 point — Bonne réponse !'
+    : '0 point — Mauvaise réponse';
+  document.getElementById('fb-correct-ans').innerHTML = correct
+    ? `Ta réponse est correcte.`
+    : `Bonne réponse : <span class="ok-ans">${LETTERS[parseInt(q.a)]} — ${q.o[parseInt(q.a)]}</span>`;
+  document.getElementById('fb-expl').textContent = q.e;
+
+  // Next button
+  document.getElementById('next-wrap').className = 'next-wrap show';
+
+  // Toast
+  showToast(correct ? '+1 point ✔' : '0 point ✘', correct ? 't-ok' : 't-ko');
+
+  // Shake card if wrong
+  if (!correct) {
+    const card = document.getElementById('qcard');
+    card.classList.add('shake');
+    setTimeout(() => card.classList.remove('shake'), 500);
+  }
+
+  updateScoreUI();
+}
+
+function nextQuestion() {
+  idx++;
+  showQuestion();
+}
+
+function updateScoreUI() {
+  const done = ok + ko;
+  document.getElementById('sc-ok').textContent = ok;
+  document.getElementById('sc-ko').textContent = ko;
+  document.getElementById('sc-tot').textContent = (ok+ko)+'/100';
+  document.getElementById('sc-pct').textContent = done > 0 ? Math.round(ok/done*100)+'%' : '—';
+  document.getElementById('hd-ok').textContent = ok;
+  document.getElementById('hd-ko').textContent = ko;
+  document.getElementById('hd-q').textContent = ok+ko;
+}
+
+function showToast(msg, cls) {
+  const t = document.createElement('div');
+  t.className = 'toast ' + cls;
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => {
+    t.classList.add('go-out');
+    setTimeout(() => t.remove(), 400);
+  }, 1400);
+}
+
+function showResults() {
+  document.getElementById('game-screen').classList.add('hidden');
+  document.getElementById('results-screen').classList.remove('hidden');
+  document.getElementById('results-screen').classList.add('show');
+
+  const note = (ok / 100 * 20).toFixed(2);
+  const pct = Math.round(ok);
+  const n = parseFloat(note);
+
+  let emoji, mention;
+  if (n >= 18) { emoji = '🏆'; mention = 'Excellent !'; }
+  else if (n >= 16) { emoji = '🥇'; mention = 'Très bien'; }
+  else if (n >= 14) { emoji = '👍'; mention = 'Bien'; }
+  else if (n >= 12) { emoji = '✅'; mention = 'Assez bien'; }
+  else if (n >= 10) { emoji = '📚'; mention = 'Passable'; }
+  else { emoji = '📖'; mention = 'À retravailler'; }
+
+  document.getElementById('res-emoji').textContent = emoji;
+  document.getElementById('res-note').textContent = note + '/20';
+  document.getElementById('res-mention').textContent = mention;
+  document.getElementById('res-ok').textContent = ok;
+  document.getElementById('res-ko').textContent = ko;
+  document.getElementById('res-pct').textContent = pct + '%';
+  document.getElementById('progress').style.width = '100%';
+
+  buildDetail('all');
+}
+
+function buildDetail(filter) {
+  const list = document.getElementById('detail-list');
+  list.innerHTML = '';
+  history.forEach((h, i) => {
+    if (filter === 'ok' && !h.correct) return;
+    if (filter === 'ko' && h.correct) return;
+    const row = document.createElement('div');
+    row.className = 'det-row ' + (h.correct ? 'r-ok' : 'r-ko');
+    const L = LETTERS;
+    const userAns = L[h.choice] + ' — ' + h.q.o[h.choice];
+    const goodAns = L[parseInt(h.q.a)] + ' — ' + h.q.o[parseInt(h.q.a)];
+    row.innerHTML = `
+      <span class="det-icon">${h.correct ? '✅' : '❌'}</span>
+      <div class="det-info">
+        <div class="det-qtext">Q${h.q.n} — ${h.q.q}</div>
+        <div class="det-ans">
+          ${h.correct
+            ? `<span class="ok-ans">✔ ${userAns}</span>`
+            : `<span class="ko-ans">✘ ${userAns}</span> &nbsp;→&nbsp; <span class="ok-ans">✔ ${goodAns}</span>`
+          }
+        </div>
+      </div>
+      <span class="det-theme">${h.q.t}</span>`;
+    list.appendChild(row);
+  });
+  if (list.children.length === 0) {
+    list.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px">Aucune réponse dans cette catégorie.</div>';
+  }
+}
+
+function filterDet(f, btn) {
+  document.querySelectorAll('.det-fbtn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  buildDetail(f);
+}
+
+function restartGame() {
+  document.getElementById('results-screen').classList.add('hidden');
+  document.getElementById('results-screen').classList.remove('show');
+  ok = 0; ko = 0; idx = 0; history = [];
+  startGame();
+}
+</script>
+</body>
+</html>
